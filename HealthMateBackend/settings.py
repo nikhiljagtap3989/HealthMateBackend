@@ -11,6 +11,7 @@ https://docs.djangoproject.com/en/4.2/ref/settings/
 """
 
 from pathlib import Path
+import os
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
@@ -31,13 +32,18 @@ ALLOWED_HOSTS = []
 # Application definition
 
 INSTALLED_APPS = [
+    'health',
     "django.contrib.admin",
     "django.contrib.auth",
     "django.contrib.contenttypes",
     "django.contrib.sessions",
     "django.contrib.messages",
     "django.contrib.staticfiles",
+    'registration',
+    
 ]
+
+
 
 MIDDLEWARE = [
     "django.middleware.security.SecurityMiddleware",
@@ -47,15 +53,20 @@ MIDDLEWARE = [
     "django.contrib.auth.middleware.AuthenticationMiddleware",
     "django.contrib.messages.middleware.MessageMiddleware",
     "django.middleware.clickjacking.XFrameOptionsMiddleware",
+    'django.contrib.messages.middleware.MessageMiddleware',
 ]
+MESSAGE_STORAGE = 'django.contrib.messages.storage.session.SessionStorage'
 
 ROOT_URLCONF = "HealthMateBackend.urls"
 
+
+tmp_path = os.path.dirname(os.path.dirname(os.path.abspath(__file__))) 
+
 TEMPLATES = [
     {
-        "BACKEND": "django.template.backends.django.DjangoTemplates",
-        "DIRS": [],
-        "APP_DIRS": True,
+        'BACKEND': 'django.template.backends.django.DjangoTemplates',
+        'DIRS': [tmp_path + '/templates/',],  # Add your templates directory here
+        'APP_DIRS': True,
         "OPTIONS": {
             "context_processors": [
                 "django.template.context_processors.debug",
@@ -68,6 +79,7 @@ TEMPLATES = [
 ]
 
 WSGI_APPLICATION = "HealthMateBackend.wsgi.application"
+AUTH_USER_MODEL = "registration.CustomUser"
 
 
 # Database
@@ -76,9 +88,9 @@ WSGI_APPLICATION = "HealthMateBackend.wsgi.application"
 DATABASES = {
     "default": {
         "ENGINE": "django.db.backends.postgresql_psycopg2",
-        "NAME": "db_user_appointment",
+        "NAME": "new_db",
         "USER": "postgres",
-        "PASSWORD": "root",
+        "PASSWORD": "Pooja@2023",
         "HOST": "localhost",
         "PORT": 5432,
     }
@@ -119,9 +131,24 @@ USE_TZ = True
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/4.2/howto/static-files/
 
+
+STATICFILES_DIRS = (
+  os.path.join(BASE_DIR, 'static/'),
+)
 STATIC_URL = "static/"
+
+# STATIC_ROOT = os.path.join(BASE_DIR, 'static')
+
+
+# STATICFILES_DIRS = [
+#     BASE_DIR / "static",
+# ]
 
 # Default primary key field type
 # https://docs.djangoproject.com/en/4.2/ref/settings/#default-auto-field
 
 DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
+# Set CSRF_COOKIE_SECURE to False for development/testing
+CSRF_COOKIE_SECURE = False
+
+

@@ -1,0 +1,81 @@
+{% extends 'master.html' %}
+
+{% block content %}
+<div class="container mt-4">
+  <h1>Daily Time Slots</h1>
+
+  {% if form.instance.daily_timeslots_id %}
+  <h2>Edit Daily Time Slot</h2>
+  {% else %}
+  <h2>Create Daily Time Slot</h2>
+  {% endif %}
+
+  <form method="post" class="bg-light p-4 rounded" style="background-color: #f7f7f7;">
+    {% csrf_token %}
+    <div class="form-row">
+      <div class="col-md-6 mb-3">
+        <label for="{{ form.appointment_date.id_for_label }}">Appointment Date</label>
+        {{ form.appointment_date }}
+      </div>
+      <div class="col-md-6 mb-3">
+  <label for="{{ form.time_slots.id_for_label }}">Time Slots</label>
+  <div class="btn-group" data-toggle="buttons">
+    <label class="btn btn-secondary">
+      <input type="checkbox" name="09:00 AM - 10:00 AM" value="slot1"> Slot 1
+    </label>
+    <label class="btn btn-secondary">
+      <input type="checkbox" name="10:00 AM - 11:00 AM" value="slot2"> Slot 2
+    </label>
+    <label class="btn btn-secondary">
+      <input type="checkbox" name="11:00 AM - 12:00 PM" value="slot3"> Slot 3
+    </label>
+  </div>
+</div>
+
+    </div>
+    <div class="form-group">
+      <button type="submit" class="btn btn-primary">Save</button>
+      <a href="{% url 'daily_timeslots_combined' doctor.doctor_id %}" class="btn btn-secondary">Cancel</a>
+    </div>
+  </form>
+
+  <hr>
+
+  <h2>Time Slots List</h2>
+
+  <p><strong>Doctor:</strong> {{ doctor.doctor_name }}</p>
+
+  <table class="table table-bordered">
+    <thead>
+      <tr>
+        <th>Date</th>
+        <th>Time Slots</th>
+        <th>Actions</th>
+      </tr>
+    </thead>
+    <tbody>
+      {% for time_slot in time_slots %}
+      <tr>
+        <td>{{ time_slot.appointment_date }}</td>
+        <td>{{ time_slot.time_slots }}</td>
+        <td>
+          <div class="btn-group" role="group">
+            <a href="{% url 'daily_timeslots_edit' doctor.doctor_id time_slot.daily_timeslots_id %}" class="btn btn-primary btn-sm">Edit</a>
+            <form method="post" action="{% url 'daily_timeslots_delete' doctor.doctor_id time_slot.daily_timeslots_id %}">
+              {% csrf_token %}
+              <button type="submit" class="btn btn-danger btn-sm">Delete</button>
+            </form>
+          </div>
+        </td>
+      </tr>
+      {% empty %}
+      <tr>
+        <td colspan="3">No daily time slots available.</td>
+      </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+
+  <a href="{% url 'daily_timeslots_combined' doctor.doctor_id %}" class="btn btn-primary">Add New Time Slot</a>
+</div>
+{% endblock %}

@@ -1,0 +1,33 @@
+{% extends 'master.html' %}
+
+{% block title %} User Profile {% endblock %}
+
+{% block content %}
+<div class="container">
+                    <h1 class="mb-4">User Profile</h1>
+                    <div class="row">
+                        <div class="col-md-4">
+                            <!-- Display the user's profile picture -->
+                            <img src="{{ user_info.profile_picture.url }}" alt="Profile Picture" class="img-fluid rounded-circle">
+                        </div>
+                        <div class="col-md-8">
+                            <h2>Profile Information</h2>
+                            <table class="table table-striped">
+                <tr>
+                    <td><strong>Username:</strong></td>
+                    <td>{{ user_info.username }}</td>
+                </tr>
+                <tr>
+                    <td><strong>Email:</strong></td>
+                    <td>{{ user_info.email }}</td>
+                </tr>
+                <tr>
+                    <td><strong>Specialization:</strong></td>
+                    <td>{{ user_info.specialization }}</td>
+                </tr>
+                <!-- Add more user-related information as needed -->
+            </table>
+                        </div>
+                    </div>
+                </div>
+{% endblock %}

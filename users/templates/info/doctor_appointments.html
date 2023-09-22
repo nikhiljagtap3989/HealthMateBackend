@@ -1,0 +1,74 @@
+{% extends 'master.html' %}
+
+{% block title %} User Profile {% endblock %}
+
+{% block content %}
+<div class="container">
+        <h1>Doctor Appointments</h1>
+
+        <p>Hello, Dr. {{ doctor.doctor_name }}!</p>
+
+        <table class="table table-bordered">
+            <thead>
+                <tr>
+                    <th>Appointment ID</th>
+                    <th>Patient</th>
+                    <th>Date</th>
+                    <th>Time</th>
+                    <th>Purpose</th>
+                    <th>Status</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for appointment in appointments %}
+                    <tr>
+                        <td>{{ appointment.appointment_id }}</td>
+                        <td>{{ appointment.patient.patient_name }}</td>
+                        <td>{{ appointment.appointment_date }}</td>
+                        <td>{{ appointment.appointment_time }}</td>
+                        <td>{{ appointment.appointment_purpose }}</td>
+                        <td>
+    {% if appointment.availability %}
+        <span class="badge bg-success">Confirmed</span>
+    {% else %}
+        <span class="badge bg-danger">Unconfirmed</span>
+    {% endif %}
+</td>
+<td>
+    {% if appointment.availability %}
+        <form method="post" action="{% url 'cancel_appointment' appointment.appointment_id %}">
+            {% csrf_token %}
+            <button type="submit" class="btn btn-danger">Cancel</button>
+        </form>
+    {% else %}
+        <form method="post" action="{% url 'confirm_appointment' appointment.appointment_id %}">
+            {% csrf_token %}
+            <button type="submit" class="btn btn-success">Confirm</button>
+        </form>
+    {% endif %}
+</td>
+                    </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+
+        <!-- Pagination controls -->
+        <div class="pagination">
+            <span class="step-links">
+                {% if appointments.has_previous %}
+                    <a href="?page=1">&laquo; first</a>
+                    <a href="?page={{ appointments.previous_page_number }}">previous</a>
+                {% endif %}
+
+                <span class="current-page">
+                    Page {{ appointments.number }} of {{ appointments.paginator.num_pages }}.
+                </span>
+
+                {% if appointments.has_next %}
+                    <a href="?page={{ appointments.next_page_number }}">next</a>
+                    <a href="?page={{ appointments.paginator.num_pages }}">last &raquo;</a>
+                {% endif %}
+            </span>
+        </div>
+    </div>
+{% endblock %}

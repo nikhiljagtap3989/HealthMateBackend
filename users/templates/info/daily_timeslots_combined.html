@@ -10,34 +10,12 @@
   <h2>Create Daily Time Slot</h2>
   {% endif %}
 
-  <form method="post" class="bg-light p-4 rounded" style="background-color: #f7f7f7;">
-    {% csrf_token %}
-    <div class="form-row">
-      <div class="col-md-6 mb-3">
-        <label for="{{ form.appointment_date.id_for_label }}">Appointment Date</label>
-        {{ form.appointment_date }}
-      </div>
-      <div class="col-md-6 mb-3">
-  <label for="{{ form.time_slots.id_for_label }}">Time Slots</label>
-  <div class="btn-group" data-toggle="buttons">
-    <label class="btn btn-secondary">
-      <input type="checkbox" name="09:00 AM - 10:00 AM" value="slot1"> Slot 1
-    </label>
-    <label class="btn btn-secondary">
-      <input type="checkbox" name="10:00 AM - 11:00 AM" value="slot2"> Slot 2
-    </label>
-    <label class="btn btn-secondary">
-      <input type="checkbox" name="11:00 AM - 12:00 PM" value="slot3"> Slot 3
-    </label>
-  </div>
-</div>
-
-    </div>
-    <div class="form-group">
-      <button type="submit" class="btn btn-primary">Save</button>
-      <a href="{% url 'daily_timeslots_combined' doctor.doctor_id %}" class="btn btn-secondary">Cancel</a>
-    </div>
-  </form>
+<form method="post" class="bg-light p-4 rounded">
+  {% csrf_token %}
+  {{ form.as_p }}
+  <button type="submit" class="btn btn-primary">Save</button>
+  <a href="{% url 'daily_timeslots_combined' doctor.doctor_id %}" class="btn btn-secondary">Cancel</a>
+</form>
 
   <hr>
 

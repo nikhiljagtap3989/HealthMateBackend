@@ -3,31 +3,85 @@
 {% block title %} User Profile {% endblock %}
 
 {% block content %}
-<div class="container">
-                    <h1 class="mb-4">User Profile</h1>
-                    <div class="row">
-                        <div class="col-md-4">
-                            <!-- Display the user's profile picture -->
-                            <img src="{{ user_info.profile_picture.url }}" alt="Profile Picture" class="img-fluid rounded-circle">
-                        </div>
-                        <div class="col-md-8">
-                            <h2>Profile Information</h2>
-                            <table class="table table-striped">
-                <tr>
-                    <td><strong>Username:</strong></td>
-                    <td>{{ user_info.username }}</td>
-                </tr>
-                <tr>
-                    <td><strong>Email:</strong></td>
-                    <td>{{ user_info.email }}</td>
-                </tr>
-                <tr>
-                    <td><strong>Specialization:</strong></td>
-                    <td>{{ user_info.specialization }}</td>
-                </tr>
-                <!-- Add more user-related information as needed -->
-            </table>
-                        </div>
-                    </div>
+
+<style>
+    .card
+    {
+
+      margin-left:76;
+      margin-right:-114;
+
+    }
+    body
+    {
+     background-color: #EAECEE;
+    }
+
+  .gradient-custom {
+    /* fallback for old browsers */
+    background: #f6d365;
+
+    /* Chrome 10-25, Safari 5.1-6 */
+    background: -webkit-linear-gradient(to right bottom, rgba(246, 211, 101, 1), rgba(253, 160, 133, 1));
+
+    /* W3C, IE 10+/ Edge, Firefox 16+, Chrome 26+, Opera 12+, Safari 7+ */
+    background: linear-gradient(to right bottom, rgba(246, 211, 101, 1), rgba(253, 160, 133, 1));
+  }
+</style>
+
+<section class="vh-100">
+  <div class="container py-5 h-100">
+    <div class="row d-flex justify-content-center align-items-center h-100">
+      <div class="col col-lg-8 mb-4 mb-lg-0">
+        <div class="card mb-3" style="border-radius: .5rem;">
+          <div class="row g-0">
+            <div class="col-md-4 gradient-custom text-center text-white"
+              style="border-top-left-radius: .5rem; border-bottom-left-radius: .5rem;">
+              <img src="https://media.istockphoto.com/id/1370102493/photo/concepts-of-augmented-reality-and-biometric-iris-recognition-or-visual-acuity-check-up.jpg?s=1024x1024&w=is&k=20&c=PCEeqOcjODspMx6qu8l9r04ERINk8Tt4U4bu8VgS6uc="
+               alt="Avatar" class="img-fluid my-4" style="width: 150px; height: 150px; border-radius: 50%;" />
+
+              <h5>{{ user_info.specialization }}</h5>
+
+              <i class="far fa-edit mb-5"></i>
+            </div>
+            <div class="col-md-8">
+              <div class="card-body p-4">
+                <h5>Profile Information</h5>
+                <hr class="mt-0 mb-4">
+                      <div class="row pt-1">
+                          <div>
+                             <h6>Username</h6>
+                                <p class="text-muted">{{ user_info.username }}</p>
+                          </div>
+                      </div>
+                        <hr class="mt-0 mb-4">
+                      <div class="row pt-1">
+                          <div>
+                             <h6>Email</h6>
+                                <p class="text-muted">{{ user_info.email }}</p>
+                          </div>
+                      </div>
+                        <hr class="mt-0 mb-2">
+                <div class="d-flex justify-content-start">
+
+                    <a href="https://www.facebook.com/" target="_blank" style="margin-right: 50px;">
+                      <img src="https://img.freepik.com/premium-vector/blue-social-media-logo_197792-1759.jpg" alt="Facebook" style="width: 40px; height: 40px;">
+                    </a>
+
+                    <a href="https://www.instagram.com/" target="_blank" style="margin-right: 50px;">
+                      <img src="https://img.freepik.com/premium-vector/purple-gradiend-social-media-logo_197792-1883.jpg?w=2000" alt="Instagram" style="width: 40px; height: 40px;">
+                    </a>
+
+                    <a href="https://twitter.com/" target="_blank">
+                      <img src="https://assets.stickpng.com/images/580b57fcd9996e24bc43c53e.png" alt="Twitter" style="width: 40px; height: 40px;">
+                    </a>
                 </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
 {% endblock %}

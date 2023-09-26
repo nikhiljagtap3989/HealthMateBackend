@@ -37,6 +37,7 @@ class Appointment(models.Model):
     appointment_time = models.CharField(max_length=100)
     appointment_purpose = models.TextField()
     availability = models.BooleanField(default=False)
+    user_cancellation = models.BooleanField(default=False)
 
     def __str__(self):
         return f"Appointment ID: {self.appointment_id} - {self.doctor.doctor_name} with {self.patient.patient_name}"

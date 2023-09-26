@@ -76,11 +76,11 @@ WSGI_APPLICATION = "HealthMate.wsgi.application"
 # https://docs.djangoproject.com/en/4.2/ref/settings/#databases
 
 DATABASES = {
-    "default": {
+   "default": {
         "ENGINE": "django.db.backends.postgresql_psycopg2",
         "NAME": "user_appointment",
         "USER": "postgres",
-        "PASSWORD": "root",
+        "PASSWORD": "Pooja@2023",
         "HOST": "localhost",
         "PORT": 5432,
     }

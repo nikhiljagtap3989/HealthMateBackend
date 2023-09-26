@@ -1,59 +1,93 @@
 {% extends 'master.html' %}
 
+{% block title %} User Profile {% endblock %}
+
 {% block content %}
-<div class="container mt-4">
-  <h1>Daily Time Slots</h1>
+<div class="container">
+    <h1>Doctor Appointments</h1>
 
-  {% if form.instance.daily_timeslots_id %}
-  <h2>Edit Daily Time Slot</h2>
-  {% else %}
-  <h2>Create Daily Time Slot</h2>
-  {% endif %}
+    <p>Hello, Dr. {{ doctor.doctor_name }}!</p>
 
-<form method="post" class="bg-light p-4 rounded">
-  {% csrf_token %}
-  {{ form.as_p }}
-  <button type="submit" class="btn btn-primary">Save</button>
-  <a href="{% url 'daily_timeslots_combined' doctor.doctor_id %}" class="btn btn-secondary">Cancel</a>
-</form>
+    <table class="table table-bordered">
+        <thead>
+            <tr>
+                <th>Appointment ID</th>
+                <th>Patient</th>
+                <th>Date</th>
+                <th>Time</th>
+                <th>Purpose</th>
+                <th>Status</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for appointment in appointments %}
+                <tr>
+                    <td>{{ appointment.appointment_id }}</td>
+                    <td>{{ appointment.patient.patient_name }}</td>
+                    <td>{{ appointment.appointment_date }}</td>
+                    <td>{{ appointment.appointment_time }}</td>
+                    <td>{{ appointment.appointment_purpose }}</td>
+                    <td>
+                        <span id="status-{{ appointment.appointment_id }}">
+                            {% if appointment.status == 'Confirmed' %}
+                                <span class="badge bg-success">Confirmed</span>
+                            {% elif appointment.status == 'Cancelled' %}
+                                <span class="badge bg-danger">Cancelled</span>
+                            {% else %}
+                                <span class="badge bg-info">{{ appointment.status }}</span>
+                            {% endif %}
+                        </span>
+                    </td>
+                    <td>
+                        <form id="confirm-form-{{ appointment.appointment_id }}" method="post" action="{% url 'confirm_appointment' appointment_id=appointment.appointment_id %}" style="display: inline-block;">
+                            {% csrf_token %}
+                            <input type="hidden" name="next" value="{{ request.path }}">
+                            <button type="submit" class="btn btn-success" onclick="updateStatus('{{ appointment.appointment_id }}', 'Confirmed')">Confirm</button>
+                        </form>
+                        <!-- Cancellation Button -->
+                        <form id="cancel-form-{{ appointment.appointment_id }}" method="post" action="{% url 'cancel_appointment' appointment_id=appointment.appointment_id %}" style="display: inline-block;">
+                            {% csrf_token %}
+                            <input type="hidden" name="next" value="{{ request.path }}">
+                            <button type="submit" class="btn btn-danger" onclick="updateStatus('{{ appointment.appointment_id }}', 'Cancelled'); return confirm('Are you sure you want to cancel this appointment?')">Cancel</button>
+                        </form>
+                    </td>
+                </tr>
+            {% endfor %}
+        </tbody>
+    </table>
 
-  <hr>
+    <!-- Pagination controls -->
+    <div class="pagination">
+        <span class="step-links">
+            {% if appointments.has_previous %}
+                <a href="?page=1">&laquo; first</a>
+                <a href="?page={{ appointments.previous_page_number }}">previous</a>
+            {% endif %}
 
-  <h2>Time Slots List</h2>
+            <span class="current-page">
+                Page {{ appointments.number }} of {{ appointments.paginator.num_pages }}.
+            </span>
 
-  <p><strong>Doctor:</strong> {{ doctor.doctor_name }}</p>
-
-  <table class="table table-bordered">
-    <thead>
-      <tr>
-        <th>Date</th>
-        <th>Time Slots</th>
-        <th>Actions</th>
-      </tr>
-    </thead>
-    <tbody>
-      {% for time_slot in time_slots %}
-      <tr>
-        <td>{{ time_slot.appointment_date }}</td>
-        <td>{{ time_slot.time_slots }}</td>
-        <td>
-          <div class="btn-group" role="group">
-            <a href="{% url 'daily_timeslots_edit' doctor.doctor_id time_slot.daily_timeslots_id %}" class="btn btn-primary btn-sm">Edit</a>
-            <form method="post" action="{% url 'daily_timeslots_delete' doctor.doctor_id time_slot.daily_timeslots_id %}">
-              {% csrf_token %}
-              <button type="submit" class="btn btn-danger btn-sm">Delete</button>
-            </form>
-          </div>
-        </td>
-      </tr>
-      {% empty %}
-      <tr>
-        <td colspan="3">No daily time slots available.</td>
-      </tr>
-      {% endfor %}
-    </tbody>
-  </table>
-
-  <a href="{% url 'daily_timeslots_combined' doctor.doctor_id %}" class="btn btn-primary">Add New Time Slot</a>
+            {% if appointments.has_next %}
+                <a href="?page={{ appointments.next_page_number }}">next</a>
+                <a href="?page={{ appointments.paginator.num_pages }}">last &raquo;</a>
+            {% endif %}
+        </span>
+    </div>
 </div>
+
+<script>
+    function updateStatus(appointmentId, newStatus) {
+        const statusElement = document.getElementById(`status-${appointmentId}`);
+        if (statusElement) {
+            if (newStatus === 'Confirmed') {
+                statusElement.innerHTML = `<span class="badge bg-success">${newStatus}</span>`;
+            } else if (newStatus === 'Cancelled') {
+                statusElement.innerHTML = `<span class="badge bg-danger">${newStatus}</span>`;
+            }
+        }
+    }
+</script>
+
+
 {% endblock %}

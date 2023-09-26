@@ -7,6 +7,9 @@ from .models import DailyTimeSlots, Doctor, Appointment
 from .forms import DailyTimeSlotsForm
 from django.utils.decorators import method_decorator
 from django.core.paginator import Paginator
+from django.core.mail import send_mail
+from django.conf import settings
+from django.http import HttpResponse
 
 def register(request):
     if request.method == 'GET':
@@ -125,26 +128,41 @@ def doctor_appointments(request):
     }
     return render(request, 'info/doctor_appointments.html', context)
 
+
+
+
 @login_required
 def confirm_appointment(request, appointment_id):
-    appointment = get_object_or_404(Appointment, appointment_id=appointment_id)
+    appointment = Appointment.objects.get(pk=appointment_id)
+    # if appointment.status != 'Confirmed':
+        # Update the appointment status to 'Confirmed'
+        # appointment.status = 'Confirmed'
+        # appointment.save()
 
-    if not appointment.availability:
-        # The appointment is not confirmed, so we can confirm it
-        appointment.availability = True
-        appointment.save()
+    # Send an email to the patient
+    patient = appointment.patient
+    subject = 'Appointment Confirmation'
+    message = f'Your appointment with {appointment.doctor.doctor_name} on {appointment.appointment_date} at {appointment.appointment_time} has been confirmed.'
+    from_email = 'akolkar.pooja23@gmail.com'  # Use your email
+    recipient_list = [patient.email]  # Use the patient's email
+    send_mail(subject, message, from_email, recipient_list)
 
-    # Redirect to the doctor's appointments page
-    return redirect('appointment_detail')
+    return redirect('appointment_detail')  
 
 @login_required
 def cancel_appointment(request, appointment_id):
-    appointment = get_object_or_404(Appointment, appointment_id=appointment_id)
+    appointment = Appointment.objects.get(pk=appointment_id)
+    # if appointment.status != 'Cancelled':
+    #     # Update the appointment status to 'Cancelled'
+    #     appointment.status = 'Cancelled'
+        # appointment.save()
+    # Send an email to the patient
+    patient = appointment.patient
+    subject = 'Appointment Cancellation'
+    message = f'Your appointment with {appointment.doctor.doctor_name} on {appointment.appointment_date} at {appointment.appointment_time} has been cancelled.'
+    print("++++++", message)
+    from_email = 'akolkar.pooja23@gmail.com'  # Use your email
+    recipient_list = [patient.email]  # Use the patient's email
+    send_mail(subject, message, from_email, recipient_list)
 
-    if appointment.availability:
-        # The appointment is confirmed, so we can cancel it
-        appointment.availability = False
-        appointment.save()
-
-    # Redirect to the doctor's appointments page
-    return redirect('appointment_detail')
+    return redirect('appointment_detail') 

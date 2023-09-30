@@ -9,7 +9,9 @@ from django.utils.decorators import method_decorator
 from django.core.paginator import Paginator
 from django.core.mail import send_mail
 from django.conf import settings
-from django.http import HttpResponse
+from django.http import JsonResponse
+from .models import DailyTimeSlots
+import json
 
 def register(request):
     if request.method == 'GET':
@@ -130,14 +132,12 @@ def doctor_appointments(request):
 
 
 
-
 @login_required
 def confirm_appointment(request, appointment_id):
     appointment = Appointment.objects.get(pk=appointment_id)
-    # if appointment.status != 'Confirmed':
-        # Update the appointment status to 'Confirmed'
-        # appointment.status = 'Confirmed'
-        # appointment.save()
+    # if appointment.status == 'Confirmed':
+    #     appointment.status = 'Confirmed'
+    #     appointment.save()
 
     # Send an email to the patient
     patient = appointment.patient
@@ -155,7 +155,7 @@ def cancel_appointment(request, appointment_id):
     # if appointment.status != 'Cancelled':
     #     # Update the appointment status to 'Cancelled'
     #     appointment.status = 'Cancelled'
-        # appointment.save()
+    #     appointment.save()
     # Send an email to the patient
     patient = appointment.patient
     subject = 'Appointment Cancellation'
@@ -166,3 +166,24 @@ def cancel_appointment(request, appointment_id):
     send_mail(subject, message, from_email, recipient_list)
 
     return redirect('appointment_detail') 
+
+
+def save_time_slots(request, doctor_id):
+    if request.method == 'POST':
+        selected_slots = request.POST.getlist('timeslots')
+        timeslots_json = json.dumps(selected_slots)
+        
+        # Create or update the DailyTimeSlots object
+        doctor = get_object_or_404(Doctor, doctor_id=doctor_id)
+        appointment_date = request.POST.get('appointmentdate')
+        
+        # Check if a DailyTimeSlots object already exists for the given doctor and date
+        daily_timeslot, created = DailyTimeSlots.objects.get_or_create(doctor=doctor, appointment_date=appointment_date)        
+
+        # Update the time_slots field with the JSON data
+        daily_timeslot.time_slots = timeslots_json
+        daily_timeslot.save()
+
+        return JsonResponse({'message': 'Time slots saved successfully'})
+
+    return JsonResponse({'message': 'Invalid request'})

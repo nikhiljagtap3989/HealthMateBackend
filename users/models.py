@@ -13,7 +13,7 @@ class DailyTimeSlots(models.Model):
     daily_timeslots_id = models.AutoField(primary_key=True)
     doctor = models.ForeignKey(Doctor, on_delete=models.CASCADE)
     appointment_date = models.DateField()
-    time_slots = models.JSONField()
+    time_slots = models.JSONField(null=True, blank=True)
 
     def __str__(self):
         return f"{self.appointment_date} - {self.doctor.doctor_name} Time Slots"

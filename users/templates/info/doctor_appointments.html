@@ -17,6 +17,7 @@
                 <th>Time</th>
                 <th>Purpose</th>
                 <th>Status</th>
+                <th>Action</th>
             </tr>
         </thead>
         <tbody>
@@ -42,14 +43,18 @@
                         <form id="confirm-form-{{ appointment.appointment_id }}" method="post" action="{% url 'confirm_appointment' appointment_id=appointment.appointment_id %}" style="display: inline-block;">
                             {% csrf_token %}
                             <input type="hidden" name="next" value="{{ request.path }}">
-                            <button type="submit" class="btn btn-success" onclick="updateStatus('{{ appointment.appointment_id }}', 'Confirmed')">Confirm</button>
-                        </form>
-                        <!-- Cancellation Button -->
-                        <form id="cancel-form-{{ appointment.appointment_id }}" method="post" action="{% url 'cancel_appointment' appointment_id=appointment.appointment_id %}" style="display: inline-block;">
-                            {% csrf_token %}
-                            <input type="hidden" name="next" value="{{ request.path }}">
-                            <button type="submit" class="btn btn-danger" onclick="updateStatus('{{ appointment.appointment_id }}', 'Cancelled'); return confirm('Are you sure you want to cancel this appointment?')">Cancel</button>
-                        </form>
+                            <button type="submit" class="btn btn-success" onclick="return confirmAction('{{ appointment.appointment_id }}', 'Confirm', this)" {% if appointment.status == 'Confirmed' %}disabled{% endif %}>Confirm</button>
+                            {% if appointment.status == 'Cancelled' %}
+                            <span class="text-danger">Cancelled</span>
+                        {% elif appointment.status == 'Confirmed' %}
+                            <span class="text-success">Confirmed</span>
+                        {% else %}
+                            <form id="cancel-form-{{ appointment.appointment_id }}" method="post" action="{% url 'cancel_appointment' appointment_id=appointment.appointment_id %}" style="display: inline-block;">
+                                {% csrf_token %}
+                                <input type="hidden" name="next" value="{{ request.path }}">
+                                <button type="submit" class="btn btn-danger" {% if appointment.status == 'Cancelled' %}disabled{% endif %} onclick="return confirmAction('{{ appointment.appointment_id }}', 'Cancel', this)">Cancel</button>
+                            </form>
+                        {% endif %}
                     </td>
                 </tr>
             {% endfor %}
@@ -75,19 +80,50 @@
         </span>
     </div>
 </div>
-
 <script>
-    function updateStatus(appointmentId, newStatus) {
-        const statusElement = document.getElementById(`status-${appointmentId}`);
-        if (statusElement) {
-            if (newStatus === 'Confirmed') {
-                statusElement.innerHTML = `<span class="badge bg-success">${newStatus}</span>`;
-            } else if (newStatus === 'Cancelled') {
-                statusElement.innerHTML = `<span class="badge bg-danger">${newStatus}</span>`;
+    function confirmAction(appointmentId, action, button) {
+        if (action === 'Cancel') {
+            if (confirm(`Are you sure you want to ${action} this appointment?`)) {
+                // Disable the button
+                button.disabled = true;
+                
+                // Handle form submission using AJAX
+                var form = button.closest('form');
+                var formData = new FormData(form);
+
+                fetch(form.action, {
+                    method: 'POST',
+                    body: formData,
+                    headers: {
+                        'X-CSRFToken': formData.get('csrfmiddlewaretoken')
+                    }
+                })
+                .then(response => {
+                    if (response.ok) {
+                        // Handle success (e.g., display a message)
+                        alert('Appointment canceled successfully');
+                    } else {
+                        // Handle error (e.g., display an error message)
+                        alert('Error canceling appointment');
+                        // Re-enable the button if there was an error
+                        button.disabled = false;
+                    }
+                })
+                .catch(error => {
+                    console.error('Error:', error);
+                    // Re-enable the button if there was an error
+                    button.disabled = false;
+                });
+
+                return false; // Prevent the default form submission
             }
         }
+        // Handle Confirm action if needed
+        return true; // Proceed with form submission
     }
 </script>
+
+
 
 
 {% endblock %}

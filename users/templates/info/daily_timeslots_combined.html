@@ -1,93 +1,205 @@
 {% extends 'master.html' %}
 
-{% block title %} User Profile {% endblock %}
 
 {% block content %}
-<div class="container">
-    <h1>Doctor Appointments</h1>
+<div class="container mt-4">
+  <h2 id="appdate" style="text-align:center;">Daily Time Slots</h2><br>
 
-    <p>Hello, Dr. {{ doctor.doctor_name }}!</p>
+  {% if form.instance.daily_timeslots_id %}
+  <h2>Edit Daily Time Slot</h2>
+  {% endif %}
 
-    <table class="table table-bordered">
-        <thead>
-            <tr>
-                <th>Appointment ID</th>
-                <th>Patient</th>
-                <th>Date</th>
-                <th>Time</th>
-                <th>Purpose</th>
-                <th>Status</th>
-            </tr>
-        </thead>
-        <tbody>
-            {% for appointment in appointments %}
-                <tr>
-                    <td>{{ appointment.appointment_id }}</td>
-                    <td>{{ appointment.patient.patient_name }}</td>
-                    <td>{{ appointment.appointment_date }}</td>
-                    <td>{{ appointment.appointment_time }}</td>
-                    <td>{{ appointment.appointment_purpose }}</td>
-                    <td>
-                        <span id="status-{{ appointment.appointment_id }}">
-                            {% if appointment.status == 'Confirmed' %}
-                                <span class="badge bg-success">Confirmed</span>
-                            {% elif appointment.status == 'Cancelled' %}
-                                <span class="badge bg-danger">Cancelled</span>
-                            {% else %}
-                                <span class="badge bg-info">{{ appointment.status }}</span>
-                            {% endif %}
-                        </span>
-                    </td>
-                    <td>
-                        <form id="confirm-form-{{ appointment.appointment_id }}" method="post" action="{% url 'confirm_appointment' appointment_id=appointment.appointment_id %}" style="display: inline-block;">
-                            {% csrf_token %}
-                            <input type="hidden" name="next" value="{{ request.path }}">
-                            <button type="submit" class="btn btn-success" onclick="updateStatus('{{ appointment.appointment_id }}', 'Confirmed')">Confirm</button>
-                        </form>
-                        <!-- Cancellation Button -->
-                        <form id="cancel-form-{{ appointment.appointment_id }}" method="post" action="{% url 'cancel_appointment' appointment_id=appointment.appointment_id %}" style="display: inline-block;">
-                            {% csrf_token %}
-                            <input type="hidden" name="next" value="{{ request.path }}">
-                            <button type="submit" class="btn btn-danger" onclick="updateStatus('{{ appointment.appointment_id }}', 'Cancelled'); return confirm('Are you sure you want to cancel this appointment?')">Cancel</button>
-                        </form>
-                    </td>
-                </tr>
-            {% endfor %}
-        </tbody>
-    </table>
+  <form action="{% url 'daily_timeslots_create' doctor.doctor_id %}" id="checkboxForm" method="post" class="bg-light p-4 rounded">
+    {% csrf_token %}
+    {% comment %} {{ form.as_p}} {% endcomment %}
 
-    <!-- Pagination controls -->
-    <div class="pagination">
-        <span class="step-links">
-            {% if appointments.has_previous %}
-                <a href="?page=1">&laquo; first</a>
-                <a href="?page={{ appointments.previous_page_number }}">previous</a>
-            {% endif %}
+        <label>Appointment Date:</label>
+        <input type="date" id="appointmentdate" name="appointmentdate" ><br><br>
+        <input type="hidden" name="doctor_id" value="{{ doctor.doctor_id }}">
 
-            <span class="current-page">
-                Page {{ appointments.number }} of {{ appointments.paginator.num_pages }}.
-            </span>
+      <input type="checkbox" id="slot1" name="slot1" value="10:00 AM - 11:00 AM">
+      <label for="slot1">10am to 11am</label>&nbsp;
+      <input type="checkbox" id="slot2" name="slot2" value="11:00 AM - 12:00 PM">
+      <label for="slot2">11am to 12am</label>&nbsp;
+      <input type="checkbox" id="slot3" name="slot3" value="12:00 PM - 01:00 PM">
+      <label for="slot3">12pm to 01pm</label>&nbsp;
+      <input type="checkbox" id="slot4" name="slot4" value="01:00 PM - 02:00 PM">
+      <label for="slot1">01pm to 02pm</label><br>
 
-            {% if appointments.has_next %}
-                <a href="?page={{ appointments.next_page_number }}">next</a>
-                <a href="?page={{ appointments.paginator.num_pages }}">last &raquo;</a>
-            {% endif %}
-        </span>
-    </div>
-</div>
+      <input type="checkbox" id="slot5" name="slot5" value="02:00 PM - 03:00 PM">
+      <label for="slot2">02pm to 03pm</label>&nbsp;
+      <input type="checkbox" id="slot6" name="slot6" value="03:00 PM - 04:00 PM">
+      <label for="slot3">03pm to 04pm</label>&nbsp;
+      <input type="checkbox" id="slot7" name="slot7" value="04:00 PM - 05:00 PM">
+      <label for="slot2">04pm to 05pm</label>&nbsp;
+      <input type="checkbox" id="slot8" name="slot8" value="05:00 PM - 06:00 PM">
+      <label for="slot3">05pm to 06pm</label>&nbsp;
 
-<script>
-    function updateStatus(appointmentId, newStatus) {
-        const statusElement = document.getElementById(`status-${appointmentId}`);
-        if (statusElement) {
-            if (newStatus === 'Confirmed') {
-                statusElement.innerHTML = `<span class="badge bg-success">${newStatus}</span>`;
-            } else if (newStatus === 'Cancelled') {
-                statusElement.innerHTML = `<span class="badge bg-danger">${newStatus}</span>`;
-            }
-        }
+      <button class="btn btn-primary">+</button><br>
+
+      <label>Time Slots:</label>
+     <textarea name="timeslots" id="timeslots" cols="70" rows="2"></textarea><br><br>
+      <div style="text-align:center;">
+      <button type="submit" class="btn btn-primary" style="width: 100px;">Save</button>&nbsp;
+      {% comment %} <a href="{% url 'daily_timeslots_combined' doctor.doctor_id %}" style="width: 100px;" class="btn btn-secondary">Save</a> {% endcomment %}
+      <a href="{% url 'daily_timeslots_combined' doctor.doctor_id %}" style="width: 100px;" class="btn btn-secondary">Cancel</a>
+      </div>
+
+
+      <script>
+        document.addEventListener("DOMContentLoaded", function() {
+          var form = document.getElementById("checkboxForm");
+          var timeslotsTextarea = document.getElementById("timeslots");
+          
+          <!-- Add this code inside your script tag after the form submit event listener -->
+form.addEventListener("submit", function(event) {
+  event.preventDefault();
+  var selectedSlots = {};
+  
+  var slotIdentifiers = ["slot1", "slot2", "slot3", "slot4", "slot5", "slot6", "slot7", "slot8"];
+  
+  slotIdentifiers.forEach(function(identifier) {
+    var checkbox = document.getElementById(identifier);
+    if (checkbox.checked) {
+      selectedSlots[identifier] = checkbox.value;
     }
-</script>
+  });
+  
+
+  var jsonSlots = JSON.stringify(selectedSlots);
+  timeslotsTextarea.value = jsonSlots;
+
+  // Send the AJAX request to save time slots
+  var appointmentDate = document.getElementById("appointmentdate").value;
+  var doctorId = "{{ doctor.doctor_id }}"; // You can access doctor ID from the context
+
+  fetch("{% url 'save_time_slots' 0 %}".replace('0', doctorId), {
+    method: "POST",
+    headers: {
+      "X-CSRFToken": getCookie("csrftoken"),
+      "Content-Type": "application/x-www-form-urlencoded",
+    },
+    body: `appointmentdate=${appointmentDate}&timeslots=${encodeURIComponent(jsonSlots)}`,
+  })
+  .then(response => response.json())
+  .then(data => {
+    if (data.message === "Time slots saved successfully") {
+      // Update the Time Slots List table with the new data
+      var timeSlotsTable = document.getElementById("timeSlotsTable");
+      var newRow = timeSlotsTable.insertRow(-1);
+      var dateCell = newRow.insertCell(0);
+      var slotsCell = newRow.insertCell(1);
+      var actionsCell = newRow.insertCell(2);
+
+      dateCell.textContent = appointmentDate;
+      slotsCell.textContent = jsonSlots;
+
+      // Create a button to edit the newly added slot
+      var editButton = document.createElement("a");
+      editButton.href = "{% url 'daily_timeslots_edit' doctor.doctor_id 0 %}".replace('0', data.daily_timeslots_id);
+      editButton.className = "btn btn-primary btn-sm";
+      editButton.textContent = "Edit";
+
+      actionsCell.appendChild(editButton);
+      actionsCell.appendChild(document.createTextNode(" "));
+
+      // Create a form to delete the slot
+      var deleteForm = document.createElement("form");
+      deleteForm.method = "post";
+      deleteForm.action = "{% url 'daily_timeslots_delete' doctor.doctor_id 0 %}".replace('0', data.daily_timeslots_id);
+
+      var csrfInput = document.createElement("input");
+      csrfInput.type = "hidden";
+      csrfInput.name = "csrfmiddlewaretoken";
+      csrfInput.value = getCookie("csrftoken");
+
+      var deleteButton = document.createElement("button");
+      deleteButton.type = "submit";
+      deleteButton.className = "btn btn-danger btn-sm";
+      deleteButton.textContent = "Delete";
+
+      deleteForm.appendChild(csrfInput);
+      deleteForm.appendChild(deleteButton);
+      actionsCell.appendChild(deleteForm);
+
+      // Clear the checkboxes and timeslotsTextarea
+      slotIdentifiers.forEach(function(identifier) {
+        var checkbox = document.getElementById(identifier);
+        checkbox.checked = false;
+      });
+      timeslotsTextarea.value = "";
+
+    } else {
+      console.error(data.error || "An error occurred while saving time slots.");
+    }
+  })
+  .catch(error => {
+    console.error(error);
+  });
+});
+
+          
+          // Helper function to get CSRF token from cookies
+          function getCookie(name) {
+            var cookieValue = null;
+            if (document.cookie && document.cookie !== "") {
+              var cookies = document.cookie.split(";");
+              for (var i = 0; i < cookies.length; i++) {
+                var cookie = cookies[i].trim();
+                if (cookie.substring(0, name.length + 1) === name + "=") {
+                  cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+                  break;
+                }
+              }
+            }
+            return cookieValue;
+          }
+        });git 
+        </script>
+        
+</form>
+
+  <hr>
+  <h2 style="text-align:center;">Time Slots List</h2>
+
+  <p><strong>Doctor:</strong> {{ doctor.doctor_name }}</p>
+
+  <table class="table table-bordered">
+    <thead>
+      <tr>
+        <th>Date</th>
+        <th>Time Slots</th>
+        <th>Actions</th>
+      </tr>
+    </thead>
+    <tbody>
+      {% for time_slot in time_slots %}
+      <tr>
+        <td>{{ time_slot.appointment_date }}</td>
+        <td>{{ time_slot.time_slots }}</td>
+        
+        <td>
+          <div class="btn-group" role="group">
+            <a href="#" style="width: 100px;" class="btn btn-primary btn-sm" onclick="showTimeSlots('{{ time_slot.time_slots }}')">Edit</a>&nbsp;
+
+            <form method="post" action="{% url 'daily_timeslots_delete' doctor.doctor_id time_slot.daily_timeslots_id %}">
+              {% csrf_token %}
+              <button type="submit" style="width: 100px;" class="btn btn-danger btn-sm">Delete</button>
+            </form>
+          </div>
+        </td>
+      </tr>
+      {% empty %}
+      <tr>
+        <td colspan="3">No daily time slots available.</td>
+      </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+
+
+  <a href="{% url 'daily_timeslots_combined' doctor.doctor_id %}" class="btn btn-primary">Add New Time Slot</a>
+</div>
 
 
 {% endblock %}

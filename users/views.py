@@ -62,7 +62,7 @@ def timeslots(request):
     user = request.user
     form = DailyTimeSlotsForm(instance=None)
     doctor = Doctor.objects.get(user=request.user)
-    time_slots = DailyTimeSlots.objects.filter(doctor__user=user)
+    time_slots = DailyTimeSlots.objects.filter(doctor__user=user).order_by('appointment_date')
     return render(request, 'info/daily_timeslots_combined.html', {'doctor': doctor, 'time_slots': time_slots, 'form': form})
 
 @method_decorator(login_required, name='dispatch')

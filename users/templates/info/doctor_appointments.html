@@ -4,71 +4,127 @@
 
 {% block content %}
 <div class="container">
-        <h1>Doctor Appointments</h1>
+    <h1>Doctor Appointments</h1>
 
-        <p>Hello, Dr. {{ doctor.doctor_name }}!</p>
+    <p>Hello, Dr. {{ doctor.doctor_name }}!</p>
 
-        <table class="table table-bordered">
-            <thead>
+    <table class="table table-bordered">
+        <thead>
+            <tr>
+                <th>Appointment ID</th>
+                <th>Patient</th>
+                <th>Date</th>
+                <th>Time</th>
+                <th>Purpose</th>
+                <th>Status</th>
+                <th>Action</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for appointment in appointments %}
                 <tr>
-                    <th>Appointment ID</th>
-                    <th>Patient</th>
-                    <th>Date</th>
-                    <th>Time</th>
-                    <th>Purpose</th>
-                    <th>Status</th>
+                    <td>{{ appointment.appointment_id }}</td>
+                    <td>{{ appointment.patient.patient_name }}</td>
+                    <td>{{ appointment.appointment_date }}</td>
+                    <td>{{ appointment.appointment_time }}</td>
+                    <td>{{ appointment.appointment_purpose }}</td>
+                    <td>
+                        <span id="status-{{ appointment.appointment_id }}">
+                            {% if appointment.status == 'Confirmed' %}
+                                <span class="badge bg-success">Confirmed</span>
+                            {% elif appointment.status == 'Cancelled' %}
+                                <span class="badge bg-danger">Cancelled</span>
+                            {% else %}
+                                <span class="badge bg-info">{{ appointment.status }}</span>
+                            {% endif %}
+                        </span>
+                    </td>
+                    <td>
+                        <form id="confirm-form-{{ appointment.appointment_id }}" method="post" action="{% url 'confirm_appointment' appointment_id=appointment.appointment_id %}" style="display: inline-block;">
+                            {% csrf_token %}
+                            <input type="hidden" name="next" value="{{ request.path }}">
+                            <button type="submit" class="btn btn-success" onclick="return confirmAction('{{ appointment.appointment_id }}', 'Confirm', this)" {% if appointment.status == 'Confirmed' %}disabled{% endif %}>Confirm</button>
+                        </form>
+                        <!-- Cancellation Button -->
+                        <form id="cancel-form-{{ appointment.appointment_id }}" method="post" action="{% url 'cancel_appointment' appointment_id=appointment.appointment_id %}" style="display: {% if appointment.status == 'Cancelled' %}none{% endif %} inline-block;">
+                            {% csrf_token %}
+                            <input type="hidden" name="next" value="{{ request.path }}">
+                            <button type="submit" class="btn btn-danger" onclick="return cancelAction('{{ appointment.appointment_id }}', this)">Cancel</button>
+                        </form>
+                        
+                        {% if appointment.status == 'Cancelled' %}
+                            <span class="text-danger">Already Cancelled</span>
+                        {% elif appointment.status == 'Confirmed' %}
+                            <span class="text-success">Already Confirmed</span>
+                        {% endif %}
+                    </td>
                 </tr>
-            </thead>
-            <tbody>
-                {% for appointment in appointments %}
-                    <tr>
-                        <td>{{ appointment.appointment_id }}</td>
-                        <td>{{ appointment.patient.patient_name }}</td>
-                        <td>{{ appointment.appointment_date }}</td>
-                        <td>{{ appointment.appointment_time }}</td>
-                        <td>{{ appointment.appointment_purpose }}</td>
-                        <td>
-    {% if appointment.availability %}
-        <span class="badge bg-success">Confirmed</span>
-    {% else %}
-        <span class="badge bg-danger">Unconfirmed</span>
-    {% endif %}
-</td>
-<td>
-    {% if appointment.availability %}
-        <form method="post" action="{% url 'cancel_appointment' appointment.appointment_id %}">
-            {% csrf_token %}
-            <button type="submit" class="btn btn-danger">Cancel</button>
-        </form>
-    {% else %}
-        <form method="post" action="{% url 'confirm_appointment' appointment.appointment_id %}">
-            {% csrf_token %}
-            <button type="submit" class="btn btn-success">Confirm</button>
-        </form>
-    {% endif %}
-</td>
-                    </tr>
-                {% endfor %}
-            </tbody>
-        </table>
+            {% endfor %}
+        </tbody>
+    </table>
 
-        <!-- Pagination controls -->
-        <div class="pagination">
-            <span class="step-links">
-                {% if appointments.has_previous %}
-                    <a href="?page=1">&laquo; first</a>
-                    <a href="?page={{ appointments.previous_page_number }}">previous</a>
-                {% endif %}
+    <!-- Pagination controls -->
+    <div class="pagination">
+        <span class="step-links">
+            {% if appointments.has_previous %}
+                <a href="?page=1">&laquo; first</a>
+                <a href="?page={{ appointments.previous_page_number }}">previous</a>
+            {% endif %}
 
-                <span class="current-page">
-                    Page {{ appointments.number }} of {{ appointments.paginator.num_pages }}.
-                </span>
-
-                {% if appointments.has_next %}
-                    <a href="?page={{ appointments.next_page_number }}">next</a>
-                    <a href="?page={{ appointments.paginator.num_pages }}">last &raquo;</a>
-                {% endif %}
+            <span class="current-page">
+                Page {{ appointments.number }} of {{ appointments.paginator.num_pages }}.
             </span>
-        </div>
+
+            {% if appointments.has_next %}
+                <a href="?page={{ appointments.next_page_number }}">next</a>
+                <a href="?page={{ appointments.paginator.num_pages }}">last &raquo;</a>
+            {% endif %}
+        </span>
     </div>
+</div>
+<script>
+    function cancelAction(appointmentId, button) {
+        if (confirm('Are you sure you want to cancel this appointment?')) {
+            // Disable the button
+            button.disabled = true;
+
+            // Handle form submission using AJAX
+            var form = button.closest('form');
+            var formData = new FormData(form);
+
+            fetch(form.action, {
+                method: 'POST',
+                body: formData,
+                headers: {
+                    'X-CSRFToken': formData.get('csrfmiddlewaretoken')
+                }
+            })
+            .then(response => {
+                if (response.ok) {
+                    // Handle success (e.g., display a message)
+                    alert('Appointment canceled successfully');
+                } else {
+                    // Handle error (e.g., display an error message)
+                    alert('Error canceling appointment');
+                    // Re-enable the button if there was an error
+                    button.disabled = false;
+                }
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                // Re-enable the button if there was an error
+                button.disabled = false;
+            });
+
+            return false; // Prevent the default form submission
+        }
+        // If user cancels the confirmation dialog, do nothing
+        return false;
+    }
+</script>
+
+
+
+
+
 {% endblock %}

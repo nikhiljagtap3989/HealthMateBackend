@@ -1,25 +1,167 @@
 {% extends 'master.html' %}
 
+
 {% block content %}
 <div class="container mt-4">
-  <h1>Daily Time Slots</h1>
+  <h2 id="appdate" style="text-align:center;">Daily Time Slots</h2><br>
 
   {% if form.instance.daily_timeslots_id %}
   <h2>Edit Daily Time Slot</h2>
-  {% else %}
-  <h2>Create Daily Time Slot</h2>
   {% endif %}
 
-<form method="post" class="bg-light p-4 rounded">
-  {% csrf_token %}
-  {{ form.as_p }}
-  <button type="submit" class="btn btn-primary">Save</button>
-  <a href="{% url 'daily_timeslots_combined' doctor.doctor_id %}" class="btn btn-secondary">Cancel</a>
+  <form action="{% url 'daily_timeslots_create' doctor.doctor_id %}" id="checkboxForm" method="post" class="bg-light p-4 rounded">
+    {% csrf_token %}
+    {% comment %} {{ form.as_p}} {% endcomment %}
+
+        <label>Appointment Date:</label>
+        <input type="date" id="appointmentdate" name="appointmentdate" ><br><br>
+        <input type="hidden" name="doctor_id" value="{{ doctor.doctor_id }}">
+
+      <input type="checkbox" id="slot1" name="slot1" value="10:00 AM - 11:00 AM">
+      <label for="slot1">10am to 11am</label>&nbsp;
+      <input type="checkbox" id="slot2" name="slot2" value="11:00 AM - 12:00 PM">
+      <label for="slot2">11am to 12am</label>&nbsp;
+      <input type="checkbox" id="slot3" name="slot3" value="12:00 PM - 01:00 PM">
+      <label for="slot3">12pm to 01pm</label>&nbsp;
+      <input type="checkbox" id="slot4" name="slot4" value="01:00 PM - 02:00 PM">
+      <label for="slot1">01pm to 02pm</label><br>
+
+      <input type="checkbox" id="slot5" name="slot5" value="02:00 PM - 03:00 PM">
+      <label for="slot2">02pm to 03pm</label>&nbsp;
+      <input type="checkbox" id="slot6" name="slot6" value="03:00 PM - 04:00 PM">
+      <label for="slot3">03pm to 04pm</label>&nbsp;
+      <input type="checkbox" id="slot7" name="slot7" value="04:00 PM - 05:00 PM">
+      <label for="slot2">04pm to 05pm</label>&nbsp;
+      <input type="checkbox" id="slot8" name="slot8" value="05:00 PM - 06:00 PM">
+      <label for="slot3">05pm to 06pm</label>&nbsp;
+
+      <button class="btn btn-primary">+</button><br>
+
+      <label>Time Slots:</label>
+     <textarea name="timeslots" id="timeslots" cols="70" rows="2"></textarea><br><br>
+      <div style="text-align:center;">
+      <button type="submit" class="btn btn-primary" style="width: 100px;">Save</button>&nbsp;
+      {% comment %} <a href="{% url 'daily_timeslots_combined' doctor.doctor_id %}" style="width: 100px;" class="btn btn-secondary">Save</a> {% endcomment %}
+      <a href="{% url 'daily_timeslots_combined' doctor.doctor_id %}" style="width: 100px;" class="btn btn-secondary">Cancel</a>
+      </div>
+
+
+      <script>
+        document.addEventListener("DOMContentLoaded", function() {
+          var form = document.getElementById("checkboxForm");
+          var timeslotsTextarea = document.getElementById("timeslots");
+          
+          <!-- Add this code inside your script tag after the form submit event listener -->
+form.addEventListener("submit", function(event) {
+  event.preventDefault();
+  var selectedSlots = {};
+  
+  var slotIdentifiers = ["slot1", "slot2", "slot3", "slot4", "slot5", "slot6", "slot7", "slot8"];
+  
+  slotIdentifiers.forEach(function(identifier) {
+    var checkbox = document.getElementById(identifier);
+    if (checkbox.checked) {
+      selectedSlots[identifier] = checkbox.value;
+    }
+  });
+  
+
+  var jsonSlots = JSON.stringify(selectedSlots);
+  timeslotsTextarea.value = jsonSlots;
+
+  // Send the AJAX request to save time slots
+  var appointmentDate = document.getElementById("appointmentdate").value;
+  var doctorId = "{{ doctor.doctor_id }}"; // You can access doctor ID from the context
+
+  fetch("{% url 'save_time_slots' 0 %}".replace('0', doctorId), {
+    method: "POST",
+    headers: {
+      "X-CSRFToken": getCookie("csrftoken"),
+      "Content-Type": "application/x-www-form-urlencoded",
+    },
+    body: `appointmentdate=${appointmentDate}&timeslots=${encodeURIComponent(jsonSlots)}`,
+  })
+  .then(response => response.json())
+  .then(data => {
+    if (data.message === "Time slots saved successfully") {
+      // Update the Time Slots List table with the new data
+      var timeSlotsTable = document.getElementById("timeSlotsTable");
+      var newRow = timeSlotsTable.insertRow(-1);
+      var dateCell = newRow.insertCell(0);
+      var slotsCell = newRow.insertCell(1);
+      var actionsCell = newRow.insertCell(2);
+
+      dateCell.textContent = appointmentDate;
+      slotsCell.textContent = jsonSlots;
+
+      // Create a button to edit the newly added slot
+      var editButton = document.createElement("a");
+      editButton.href = "{% url 'daily_timeslots_edit' doctor.doctor_id 0 %}".replace('0', data.daily_timeslots_id);
+      editButton.className = "btn btn-primary btn-sm";
+      editButton.textContent = "Edit";
+
+      actionsCell.appendChild(editButton);
+      actionsCell.appendChild(document.createTextNode(" "));
+
+      // Create a form to delete the slot
+      var deleteForm = document.createElement("form");
+      deleteForm.method = "post";
+      deleteForm.action = "{% url 'daily_timeslots_delete' doctor.doctor_id 0 %}".replace('0', data.daily_timeslots_id);
+
+      var csrfInput = document.createElement("input");
+      csrfInput.type = "hidden";
+      csrfInput.name = "csrfmiddlewaretoken";
+      csrfInput.value = getCookie("csrftoken");
+
+      var deleteButton = document.createElement("button");
+      deleteButton.type = "submit";
+      deleteButton.className = "btn btn-danger btn-sm";
+      deleteButton.textContent = "Delete";
+
+      deleteForm.appendChild(csrfInput);
+      deleteForm.appendChild(deleteButton);
+      actionsCell.appendChild(deleteForm);
+
+      // Clear the checkboxes and timeslotsTextarea
+      slotIdentifiers.forEach(function(identifier) {
+        var checkbox = document.getElementById(identifier);
+        checkbox.checked = false;
+      });
+      timeslotsTextarea.value = "";
+
+    } else {
+      console.error(data.error || "An error occurred while saving time slots.");
+    }
+  })
+  .catch(error => {
+    console.error(error);
+  });
+});
+
+          
+          // Helper function to get CSRF token from cookies
+          function getCookie(name) {
+            var cookieValue = null;
+            if (document.cookie && document.cookie !== "") {
+              var cookies = document.cookie.split(";");
+              for (var i = 0; i < cookies.length; i++) {
+                var cookie = cookies[i].trim();
+                if (cookie.substring(0, name.length + 1) === name + "=") {
+                  cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+                  break;
+                }
+              }
+            }
+            return cookieValue;
+          }
+        });git 
+        </script>
+        
+        
 </form>
 
   <hr>
-
-  <h2>Time Slots List</h2>
+  <h2 style="text-align:center;">Time Slots List</h2>
 
   <p><strong>Doctor:</strong> {{ doctor.doctor_name }}</p>
 
@@ -36,12 +178,14 @@
       <tr>
         <td>{{ time_slot.appointment_date }}</td>
         <td>{{ time_slot.time_slots }}</td>
+        
         <td>
           <div class="btn-group" role="group">
-            <a href="{% url 'daily_timeslots_edit' doctor.doctor_id time_slot.daily_timeslots_id %}" class="btn btn-primary btn-sm">Edit</a>
+            <a href="#" style="width: 100px;" class="btn btn-primary btn-sm" onclick="showTimeSlots('{{ time_slot.time_slots }}')">Edit</a>&nbsp;
+
             <form method="post" action="{% url 'daily_timeslots_delete' doctor.doctor_id time_slot.daily_timeslots_id %}">
               {% csrf_token %}
-              <button type="submit" class="btn btn-danger btn-sm">Delete</button>
+              <button type="submit" style="width: 100px;" class="btn btn-danger btn-sm">Delete</button>
             </form>
           </div>
         </td>
@@ -51,9 +195,13 @@
         <td colspan="3">No daily time slots available.</td>
       </tr>
       {% endfor %}
+      </div>
     </tbody>
   </table>
 
+
   <a href="{% url 'daily_timeslots_combined' doctor.doctor_id %}" class="btn btn-primary">Add New Time Slot</a>
 </div>
+
+
 {% endblock %}

@@ -64,3 +64,4 @@ class DailyTimeSlotsForm(forms.ModelForm):
         fields = ['appointment_date', 'time_slots']
 
     # You can add custom validation or widgets here if needed
+    

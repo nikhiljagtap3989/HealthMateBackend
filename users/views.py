@@ -12,6 +12,10 @@ from django.conf import settings
 from django.http import JsonResponse
 from .models import DailyTimeSlots
 import json
+import datetime
+from datetime import datetime
+from django.core.exceptions import ValidationError
+from django.utils import timezone
 
 def register(request):
     if request.method == 'GET':
@@ -129,33 +133,28 @@ def doctor_appointments(request):
         'appointments': page_appointments,
     }
     return render(request, 'info/doctor_appointments.html', context)
-
-
-
 @login_required
 def confirm_appointment(request, appointment_id):
     appointment = Appointment.objects.get(pk=appointment_id)
-    # if appointment.status == 'Confirmed':
-    #     appointment.status = 'Confirmed'
-    #     appointment.save()
+    if not appointment.availability:
+        appointment.availability = True
+        appointment.save()
+        # Send an email to the patient
+        patient = appointment.patient
+        subject = 'Appointment Confirmation'
+        message = f'Your appointment with {appointment.doctor.doctor_name} on {appointment.appointment_date} at {appointment.appointment_time} has been confirmed.'
+        from_email = 'akolkar.pooja23@gmail.com'  # Use your email
+        recipient_list = [patient.email]  # Use the patient's email
+        send_mail(subject, message, from_email, recipient_list)
 
-    # Send an email to the patient
-    patient = appointment.patient
-    subject = 'Appointment Confirmation'
-    message = f'Your appointment with {appointment.doctor.doctor_name} on {appointment.appointment_date} at {appointment.appointment_time} has been confirmed.'
-    from_email = 'akolkar.pooja23@gmail.com'  # Use your email
-    recipient_list = [patient.email]  # Use the patient's email
-    send_mail(subject, message, from_email, recipient_list)
-
-    return redirect('appointment_detail')  
+    return redirect('appointment_detail')
 
 @login_required
 def cancel_appointment(request, appointment_id):
     appointment = Appointment.objects.get(pk=appointment_id)
-    # if appointment.status != 'Cancelled':
-    #     # Update the appointment status to 'Cancelled'
-    #     appointment.status = 'Cancelled'
-    #     appointment.save()
+    if appointment.availability:
+        appointment.availability = False
+        appointment.save()
     # Send an email to the patient
     patient = appointment.patient
     subject = 'Appointment Cancellation'
@@ -170,20 +169,22 @@ def cancel_appointment(request, appointment_id):
 
 def save_time_slots(request, doctor_id):
     if request.method == 'POST':
-        selected_slots = request.POST.getlist('timeslots')
-        timeslots_json = json.dumps(selected_slots)
+        selected_slots = json.loads(request.POST.get('timeslots'))
         
         # Create or update the DailyTimeSlots object
         doctor = get_object_or_404(Doctor, doctor_id=doctor_id)
         appointment_date = request.POST.get('appointmentdate')
         
-        # Check if a DailyTimeSlots object already exists for the given doctor and date
-        daily_timeslot, created = DailyTimeSlots.objects.get_or_create(doctor=doctor, appointment_date=appointment_date)        
+        try:
+            # Try to retrieve an existing DailyTimeSlots object
+            daily_timeslot = DailyTimeSlots.objects.get(doctor=doctor, appointment_date=appointment_date)
+        except DailyTimeSlots.DoesNotExist:
+            # If it doesn't exist, create a new one with an empty list for time_slots
+            daily_timeslot = DailyTimeSlots(doctor=doctor, appointment_date=appointment_date, time_slots=[])
 
-        # Update the time_slots field with the JSON data
-        daily_timeslot.time_slots = timeslots_json
+        # Update the time_slots field with the selected slots
+        daily_timeslot.time_slots = selected_slots
         daily_timeslot.save()
-
         return JsonResponse({'message': 'Time slots saved successfully'})
 
     return JsonResponse({'message': 'Invalid request'})

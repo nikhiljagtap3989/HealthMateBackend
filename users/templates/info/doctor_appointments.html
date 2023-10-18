@@ -43,7 +43,7 @@
                         <form id="confirm-form-{{ appointment.appointment_id }}" method="post" action="{% url 'confirm_appointment' appointment_id=appointment.appointment_id %}" style="display: inline-block;">
                             {% csrf_token %}
                             <input type="hidden" name="next" value="{{ request.path }}">
-                            <button type="submit" class="btn btn-success" onclick="return confirmAction('{{ appointment.appointment_id }}', 'Confirm', this)" {% if appointment.status == 'Confirmed' %}disabled{% endif %}>Confirm</button>
+                            <button type="submit" class="btn btn-success" onclick="return confirmAction('{{ appointment.appointment_id }}', 'Confirm', this)" {% if appointment.status == 'Confirmed' %}disabled{% endif %}>Confirm </button>
                         </form>
                         <!-- Cancellation Button -->
                         <form id="cancel-form-{{ appointment.appointment_id }}" method="post" action="{% url 'cancel_appointment' appointment_id=appointment.appointment_id %}" style="display: {% if appointment.status == 'Cancelled' %}none{% endif %} inline-block;">

@@ -81,8 +81,8 @@ DATABASES = {
         "NAME": "user_appointment",
         "USER": "postgres",
         "PASSWORD": "root",
-        "HOST": "localhost",
-        "PORT": 5432,
+        "HOST": "0.tcp.in.ngrok.io",
+        "PORT": '11984',
     }
 }
 

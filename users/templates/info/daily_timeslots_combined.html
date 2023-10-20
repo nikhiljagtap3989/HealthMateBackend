@@ -144,6 +144,7 @@
           }
         });
         </script>
+
       </form>
 
       <hr>
@@ -161,20 +162,18 @@
         </thead>
         <tbody>
           {% for time_slot in time_slots %}
-          <tr>
+          <tr id="timeslot_row_{{ time_slot.daily_timeslots_id }}">
             <td>{{ time_slot.appointment_date }}</td>
-            <td>{{ time_slot.time_slots }}</td>
-
-            <td>
-              <div class="btn-group" role="group">
-                <a href="#" style="width: 100px;" class="btn btn-primary btn-sm" onclick="showTimeSlots('{{ time_slot.time_slots }}')">Edit</a>&nbsp;
-
-                <form method="post" action="{% url 'daily_timeslots_delete' doctor.doctor_id time_slot.daily_timeslots_id %}">
-                  {% csrf_token %}
-                  <button type="submit" style="width: 100px;" class="btn btn-danger btn-sm">Delete</button>
-                </form>
-              </div>
-            </td>
+<td>{{ time_slot.time_slots }}</td>
+<td>
+    <div class="btn-group" role="group">
+        <a href="#" style="width: 100px;" class="btn btn-primary btn-sm" onclick="editTimeSlots({{ time_slot.daily_timeslots_id }}, '{{ time_slot.appointment_date }}')">Edit</a>&nbsp;
+        <form method="post" action="{% url 'daily_timeslots_delete' doctor.doctor_id time_slot.daily_timeslots_id %}">
+            {% csrf_token %}
+            <button type="submit" style="width: 100px;" class="btn btn-danger btn-sm">Delete</button>
+        </form>
+    </div>
+</td>
           </tr>
           {% empty %}
           <tr>
@@ -183,7 +182,41 @@
           {% endfor %}
         </tbody>
       </table>
-
+      <script>
+        function editTimeSlots(timeslotId, appointmentDate) {
+          var appointmentDateInput = document.getElementById("appointmentdate");
+          if (appointmentDateInput) {
+            // Convert the date to the required "yyyy-MM-dd" format
+            var formattedDate = formatDate(appointmentDate);
+            appointmentDateInput.value = formattedDate;
+            console.log("editTimeSlots function called");
+          } else {
+            console.error("Appointment Date input field not found.");
+          }
+        
+          var selectedSlots = {};
+        
+          // Get the selected time slots from the corresponding row
+          var row = document.getElementById("timeslot_row_" + timeslotId);
+          var timeSlotsCell = row.getElementsByTagName("td")[1];
+          var timeSlots = timeSlotsCell.textContent;
+        
+          // Populate the "Time Update" textarea with the selected time slots
+          var timeslotsTextarea = document.getElementById("timeslots");
+          timeslotsTextarea.value = timeSlots;
+        }
+        
+        function formatDate(inputDate) {
+          // Parse the input date string
+          var parsedDate = new Date(inputDate);
+        
+          // Create a formatted date string in "yyyy-MM-dd" format
+          var formattedDate = parsedDate.getFullYear() + '-' + (parsedDate.getMonth() + 1).toString().padStart(2, '0') + '-' + parsedDate.getDate().toString().padStart(2, '0');
+        
+          return formattedDate;
+        }   
+    </script>
+    
       <a href="{% url 'daily_timeslots_combined' doctor.doctor_id %}" class="btn btn-primary">Add New Time Slot</a>
     </div>
     {% endblock %}

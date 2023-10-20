@@ -30,6 +30,7 @@
                     <th class="border border-dark">Purpose</th>
                     <th class="border border-dark">Status</th>
                     <th class="border border-dark">Action</th>
+                    <th class="border border-dark">Cancel_User</th>
                 </tr>
             </thead>
             <tbody>
@@ -58,6 +59,11 @@
                                     {% csrf_token %}
                                     <button type="submit" class="btn btn-success">Confirm</button>
                                 </form>
+                            {% endif %}
+                        </td>
+                        <td style="{% if not appointment.user_cancellation %}color: red;{% endif %}">
+                            {% if appointment.user_cancellation %}
+                                Cancelled by user
                             {% endif %}
                         </td>
                     </tr>

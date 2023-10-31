@@ -1,6 +1,5 @@
   {% extends 'master.html' %}
 
-<<<<<<< HEAD
   {% block content %}
   <div class="container mt-4">
     <h2 id="appdate" style="text-align:center;">Daily Time Slots</h2><br>
@@ -220,9 +219,6 @@
     
       <a href="{% url 'daily_timeslots_combined' doctor.doctor_id %}" class="btn btn-primary">Add New Time Slot</a>
     </div>
-    {% endblock %}
-=======
-{% block content %}
 <div class="row flex-row-reverse">
     <!--    <i class="bi bi-person-square " style="font-size: 1.3rem;color:black;"> </i>-->
     <p class="pl-2"><strong>Doctor:</strong> {{ doctor.doctor_name }}</p>
@@ -464,4 +460,4 @@
 <!--      <a href="{% url 'daily_timeslots_combined' doctor.doctor_id %}" class="btn btn-primary">Add New Time Slot</a>-->
 
 {% endblock %}
->>>>>>> uidesign
+

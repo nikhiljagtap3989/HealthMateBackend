@@ -84,15 +84,7 @@ DATABASES = {
         "USER": "postgres",
         "PASSWORD": "root",
         "HOST": "0.tcp.in.ngrok.io",
-<<<<<<< HEAD
-<<<<<<< HEAD
-        "PORT": '11984',
-=======
-        "PORT": '18937',
->>>>>>> f4f84f22597588a151e95c8310b99202f6da237a
-=======
         "PORT": '15049',
->>>>>>> uidesign
     }
 }
 

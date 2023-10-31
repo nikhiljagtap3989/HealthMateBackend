@@ -82,11 +82,12 @@
                     </tr>
                 {% endfor %}
             </tbody>
-        </table>
+
+            </table>
 
         <!-- Pagination controls -->
-              <nav aria-label="Page navigation example">
-                  <ul class="pagination">
+              <nav class="text-center" aria-label="Page navigation example">
+                  <ul class="pagination justify-content-center">
                     {% if appointments.has_previous %}
                       <li class="page-item">
                         <a class="page-link" href="?page=1" aria-label="First">

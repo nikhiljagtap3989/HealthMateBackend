@@ -7,6 +7,15 @@ from .models import DailyTimeSlots, Doctor, Appointment
 from .forms import DailyTimeSlotsForm
 from django.utils.decorators import method_decorator
 from django.core.paginator import Paginator
+from django.core.mail import send_mail
+from django.conf import settings
+from django.http import JsonResponse
+from .models import DailyTimeSlots
+import json
+import datetime
+from datetime import datetime
+from django.core.exceptions import ValidationError
+from django.utils import timezone
 
 def register(request):
     if request.method == 'GET':
@@ -57,7 +66,7 @@ def timeslots(request):
     user = request.user
     form = DailyTimeSlotsForm(instance=None)
     doctor = Doctor.objects.get(user=request.user)
-    time_slots = DailyTimeSlots.objects.filter(doctor__user=user)
+    time_slots = DailyTimeSlots.objects.filter(doctor__user=user).order_by('appointment_date')
     return render(request, 'info/daily_timeslots_combined.html', {'doctor': doctor, 'time_slots': time_slots, 'form': form})
 
 @method_decorator(login_required, name='dispatch')
@@ -124,27 +133,58 @@ def doctor_appointments(request):
         'appointments': page_appointments,
     }
     return render(request, 'info/doctor_appointments.html', context)
-
 @login_required
 def confirm_appointment(request, appointment_id):
-    appointment = get_object_or_404(Appointment, appointment_id=appointment_id)
-
+    appointment = Appointment.objects.get(pk=appointment_id)
     if not appointment.availability:
-        # The appointment is not confirmed, so we can confirm it
         appointment.availability = True
         appointment.save()
+        # Send an email to the patient
+        patient = appointment.patient
+        subject = 'Appointment Confirmation'
+        message = f'Your appointment with {appointment.doctor.doctor_name} on {appointment.appointment_date} at {appointment.appointment_time} has been confirmed.'
+        from_email = 'akolkar.pooja23@gmail.com'  # Use your email
+        recipient_list = [patient.email]  # Use the patient's email
+        send_mail(subject, message, from_email, recipient_list)
 
-    # Redirect to the doctor's appointments page
     return redirect('appointment_detail')
 
 @login_required
 def cancel_appointment(request, appointment_id):
-    appointment = get_object_or_404(Appointment, appointment_id=appointment_id)
-
+    appointment = Appointment.objects.get(pk=appointment_id)
     if appointment.availability:
-        # The appointment is confirmed, so we can cancel it
         appointment.availability = False
         appointment.save()
+    # Send an email to the patient
+    patient = appointment.patient
+    subject = 'Appointment Cancellation'
+    message = f'Your appointment with {appointment.doctor.doctor_name} on {appointment.appointment_date} at {appointment.appointment_time} has been cancelled.'
+    print("++++++", message)
+    from_email = 'akolkar.pooja23@gmail.com'  # Use your email
+    recipient_list = [patient.email]  # Use the patient's email
+    send_mail(subject, message, from_email, recipient_list)
 
-    # Redirect to the doctor's appointments page
-    return redirect('appointment_detail')
+    return redirect('appointment_detail') 
+
+
+def save_time_slots(request, doctor_id):
+    if request.method == 'POST':
+        selected_slots = json.loads(request.POST.get('timeslots'))
+        
+        # Create or update the DailyTimeSlots object
+        doctor = get_object_or_404(Doctor, doctor_id=doctor_id)
+        appointment_date = request.POST.get('appointmentdate')
+        
+        try:
+            # Try to retrieve an existing DailyTimeSlots object
+            daily_timeslot = DailyTimeSlots.objects.get(doctor=doctor, appointment_date=appointment_date)
+        except DailyTimeSlots.DoesNotExist:
+            # If it doesn't exist, create a new one with an empty list for time_slots
+            daily_timeslot = DailyTimeSlots(doctor=doctor, appointment_date=appointment_date, time_slots=[])
+
+        # Update the time_slots field with the selected slots
+        daily_timeslot.time_slots = selected_slots
+        daily_timeslot.save()
+        return JsonResponse({'message': 'Time slots saved successfully'})
+
+    return JsonResponse({'message': 'Invalid request'})

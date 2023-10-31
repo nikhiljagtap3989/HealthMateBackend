@@ -12,6 +12,8 @@ https://docs.djangoproject.com/en/4.2/ref/settings/
 
 from pathlib import Path
 import os
+import smtplib
+smtplib.SMTP.debuglevel = 1
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
@@ -82,7 +84,7 @@ DATABASES = {
         "USER": "postgres",
         "PASSWORD": "root",
         "HOST": "0.tcp.in.ngrok.io",
-        "PORT": '11984',
+        "PORT": '15049',
     }
 }
 
@@ -132,3 +134,15 @@ DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
 LOGIN_REDIRECT_URL = "info"
 LOGOUT_REDIRECT_URL = "home"
 LOGIN_URL = "login"
+
+# Email Setting
+EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
+EMAIL_HOST = 'smtp.gmail.com'
+EMAIL_PORT = 587
+EMAIL_USE_TLS = True
+EMAIL_USE_SSL = False  # Use SSL (True/False)
+EMAIL_HOST_USER = 'akolkar.pooja23@gmail.com'
+EMAIL_HOST_PASSWORD = 'ervnnbzlrbsolmkz'
+
+# Enable email logging
+EMAIL_LOGGING = True

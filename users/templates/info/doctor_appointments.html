@@ -5,10 +5,10 @@
 {% block content %}
 
 <style>
-    body
-    {
-     background-color: #EAECEE;
-    }
+<!--    body-->
+<!--    {-->
+<!--     background-color: #EAECEE;-->
+<!--    }-->
 
 </style>
 
@@ -16,14 +16,20 @@
         <div class="d-flex align-items-center justify-content-center" style="margin-left: 100px;">
           <h1 class="text-center">Doctor Appointments</h1>
         </div>
-
-
         <p>Hello, <b>Dr. {{ doctor.doctor_name }}</b></p>
-
-        <table class="table table-bordered" style="border: 1px solid #000; width: 135%; margin: 0 auto;">
+<!--        <table class="table table-bordered table-hover" style="border: ; width: 135%; margin: 0 auto;">-->
+<!--            <thead class="thead-dark">-->
+<!--                <tr class="text-center">-->
+<!--                    <th>ID</th>-->
+<!--                    <th>Patient</th>-->
+<!--                    <th>Date</th>-->
+<!--                    <th>Time</th>-->
+<!--                    <th>Purpose</th>-->
+<!--                    <th>Status</th>-->
+<!--                    <th>Action</th>-->
+        <table class="table table-bordered table-hover" style="border: ; width: 120%; margin: 0 auto;">
             <thead>
-                <tr class="table-primary">
-                    <th class="border border-dark">Appointment ID</th>
+                <tr class="thead-dark">
                     <th class="border border-dark">Patient</th>
                     <th class="border border-dark">Date</th>
                     <th class="border border-dark">Time</th>
@@ -35,7 +41,7 @@
             </thead>
             <tbody>
                 {% for appointment in appointments %}
-                    <tr class="table-secondary border border-success">
+                    <tr class="border">
                         <td>{{ appointment.appointment_id }}</td>
                         <td>{{ appointment.patient.patient_name }}</td>
                         <td>{{ appointment.appointment_date }}</td>
@@ -43,21 +49,23 @@
                         <td>{{ appointment.appointment_purpose }}</td>
                         <td>
                             {% if appointment.availability %}
-                                <span class="badge bg-success">Confirmed</span>
+                                <p class="text-success font-weight-bold">Confirmed</p>
+<!--                                <span class="button bg-success">Confirmed</span>-->
                             {% else %}
-                                <span style="color:white;" class="badge bg-danger">Unconfirmed</span>
+                            <p class="text-danger font-weight-bold">Unconfirmed</p>
+<!--                                <span style="color:white;" class="badge bg-danger">Unconfirmed</span>-->
                             {% endif %}
                         </td>
                         <td>
                             {% if appointment.availability %}
                                 <form method="post" action="{% url 'cancel_appointment' appointment.appointment_id %}">
                                     {% csrf_token %}
-                                    <button type="submit" class="btn btn-danger">Cancel</button>
+                                    <button type="submit" class="btn btn-outline-danger">Cancel</button>
                                 </form>
                             {% else %}
                                 <form method="post" action="{% url 'confirm_appointment' appointment.appointment_id %}">
                                     {% csrf_token %}
-                                    <button type="submit" class="btn btn-success">Confirm</button>
+                                    <button type="submit" class="btn btn-outline-success">Confirm</button>
                                 </form>
                             {% endif %}
                         </td>
@@ -69,11 +77,12 @@
                     </tr>
                 {% endfor %}
             </tbody>
-        </table>
+
+            </table>
 
         <!-- Pagination controls -->
-              <nav aria-label="Page navigation example">
-                  <ul class="pagination">
+              <nav class="text-center" aria-label="Page navigation example">
+                  <ul class="pagination justify-content-center">
                     {% if appointments.has_previous %}
                       <li class="page-item">
                         <a class="page-link" href="?page=1" aria-label="First">

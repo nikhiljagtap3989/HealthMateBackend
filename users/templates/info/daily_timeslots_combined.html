@@ -1,222 +1,246 @@
   {% extends 'master.html' %}
 
   {% block content %}
-  <div class="container mt-4">
-    <h2 id="appdate" style="text-align:center;">Daily Time Slots</h2><br>
 
-    {% if form.instance.daily_timeslots_id %}
-    <h2>Edit Daily Time Slot</h2>
-    {% endif %}
+<div class="row flex-row-reverse">
+    <!--    <i class="bi bi-person-square " style="font-size: 1.3rem;color:black;"> </i>-->
+    <p class="pl-2"><strong>Doctor:</strong> {{ doctor.doctor_name }}</p>
+    <!--    <i class="bi bi-person-square " style="font-size: 1.3rem;color:black;"> </i>-->
+</div>
 
-    <form action="{% url 'daily_timeslots_create' doctor.doctor_id %}" id="checkboxForm" method="post" class="bg-light p-4 rounded">
-      {% csrf_token %}
-      {% comment %} {{ form.as_p}} {% endcomment %}
-      <label>Appointment Date:</label>
-      <input type="date" id="appointmentdate" name="appointmentdate" ><br><br>
-      <input type="hidden" name="doctor_id" value="{{ doctor.doctor_id }}">
+<h2 id="appdate" style="text-align:center;">Time Slots</h2><br>
+{% if form.instance.daily_timeslots_id %}
+<h2>Add your Available time slots</h2>
 
-      <input type="checkbox" id="slot1" name="slot1" value="10:00 AM - 11:00 AM">
-      <label for="slot1">10am to 11am</label>&nbsp;
-      <input type="checkbox" id="slot2" name="slot2" value="11:00 AM - 12:00 PM">
-      <label for="slot2">11am to 12am</label>&nbsp;
-      <input type="checkbox" id="slot3" name="slot3" value="12:00 PM - 01:00 PM">
-      <label for="slot3">12pm to 01pm</label>&nbsp;
-      <input type="checkbox" id="slot4" name="slot4" value="01:00 PM - 02:00 PM">
-      <label for="slot1">01pm to 02pm</label><br>
+{% endif %}
+<div class="container">
+    <div class="row">
+        <div class="col-md mx-auto">
+            <form action="{% url 'daily_timeslots_create' doctor.doctor_id %}" id="checkboxForm" method="post"
+                  style="justify-content:center;">
+                {% csrf_token %}
+                {% comment %} {{ form.as_p}} {% endcomment %}
+                <label>Appointment Date:</label>
+                <input type="date" id="appointmentdate" name="appointmentdate"><br><br>
+                <input type="hidden" name="doctor_id" value="{{ doctor.doctor_id }}">
 
-      <input type="checkbox" id="slot5" name="slot5" value="02:00 PM - 03:00 PM">
-      <label for="slot2">02pm to 03pm</label>&nbsp;
-      <input type="checkbox" id="slot6" name="slot6" value="03:00 PM - 04:00 PM">
-      <label for="slot3">03pm to 04pm</label>&nbsp;
-      <input type="checkbox" id="slot7" name="slot7" value="04:00 PM - 05:00 PM">
-      <label for="slot2">04pm to 05pm</label>&nbsp;
-      <input type="checkbox" id="slot8" name="slot8" value="05:00 PM - 06:00 PM">
-      <label for="slot3">05pm to 06pm</label>&nbsp;
+                <!--                Time Slots table-->
+                <div class="container-fluid">
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="list-group">
+                                <label for="slot1">
+                                    <input class="form-check-input me-1" type="checkbox" id="slot1" name="slot1"
+                                           value="10:00 AM - 11:00 AM">
+                                    10am to 11am
+                                </label>
+                                <label for="slot2">
+                                    <input class="form-check-input me-1" type="checkbox" id="slot2" name="slot2"
+                                           value="11:00 AM - 12:00 PM">
+                                    11am to 12am
+                                </label>
+                                <label for="slot3">
+                                    <input class="form-check-input me-1" type="checkbox" id="slot3" name="slot3"
+                                           value="12:00 PM - 01:00 PM">
+                                    12pm to 01pm
+                                </label>
+                                <label for="slot4">
+                                    <input class="form-check-input me-1" type="checkbox" id="slot4" name="slot4"
+                                           value="01:00 PM - 02:00 PM">
+                                    01pm to 02pm
+                                </label>
+                            </div>
+                        </div>
 
-      <button class="btn btn-primary">+</button><br>
 
-      <label>Time Update:</label>
-      <textarea name="timeslots" id="timeslots" cols="70" rows="2"></textarea><br><br>
-      <div style="text-align:center;">
-        <button type="submit" class="btn btn-primary" style="width: 100px;">Save</button>&nbsp;
-        <a href="{% url 'daily_timeslots_combined' doctor.doctor_id %}" style="width: 100px;" class="btn btn-secondary">Cancel</a>
-      </div>
+                    <div class="col-md-6">
+                        <div class="list-group">
+                            <label for="slot2">
+                            <input class="form-check-input me-1" type="checkbox" id="slot5" name="slot5" value="02:00 PM - 03:00 PM">
+                            02pm to 03pm
+                            </label>
+                            <label for="slot3">
+                            <input class="form-check-input me-1" type="checkbox" id="slot6" name="slot6" value="03:00 PM - 04:00 PM">
+                            03pm to 04pm
+                            </label>
+                            <label for="slot2">
+                            <input class="form-check-input me-1" type="checkbox" id="slot7" name="slot7" value="04:00 PM - 05:00 PM">
+                            04pm to 05pm
+                            </label>
+                            <label for="slot3">
+                            <input class="form-check-input me-1" type="checkbox" id="slot8" name="slot8" value="05:00 PM - 06:00 PM">
+                            05pm to 06pm</label>
+                        </div>
+                    </div>
+                </div>
+                    </div>
+                <div class="mx-auto" style="width: 200px;">
+                    <button class="btn btn-primary" style="content-align:center;">+</button>
+                </div>
+                <br>
+                <label>Time Update:</label>
+                <textarea name="timeslots" id="timeslots" cols="50" rows="1"></textarea>
+                <div style="text-align:center;">
+                    <button type="submit" class="btn btn-primary" style="width: 100px;">Save</button>&nbsp;
+                    <a href="{% url 'daily_timeslots_combined' doctor.doctor_id %}" class="btn btn-primary">Add New
+                        Time
+                        Slot</a>
+                    <a href="{% url 'daily_timeslots_combined' doctor.doctor_id %}" style="width: 100px;"
+                       class="btn btn-secondary">Cancel</a>
+                </div>
 
-      <script>
-        
-        document.addEventListener("DOMContentLoaded", function() {
-          var form = document.getElementById("checkboxForm");
-          var timeslotsTextarea = document.getElementById("timeslots");
+                <script>
 
-          form.addEventListener("submit", function(event) {
-            event.preventDefault();
-            var selectedSlots = {};
+                    document.addEventListener("DOMContentLoaded", function() {
+                      var form = document.getElementById("checkboxForm");
+                      var timeslotsTextarea = document.getElementById("timeslots");
 
-            var slotIdentifiers = ["slot1", "slot2", "slot3", "slot4", "slot5", "slot6", "slot7", "slot8"];
+                      form.addEventListener("submit", function(event) {
+                        event.preventDefault();
+                        var selectedSlots = {};
 
-            slotIdentifiers.forEach(function(identifier) {
-              var checkbox = document.getElementById(identifier);
-              if (checkbox.checked) {
-                selectedSlots[identifier] = checkbox.value;
-              }
-            });
+                        var slotIdentifiers = ["slot1", "slot2", "slot3", "slot4", "slot5", "slot6", "slot7", "slot8"];
 
-            var jsonSlots = JSON.stringify(selectedSlots);
-            timeslotsTextarea.value = jsonSlots;
+                        slotIdentifiers.forEach(function(identifier) {
+                          var checkbox = document.getElementById(identifier);
+                          if (checkbox.checked) {
+                            selectedSlots[identifier] = checkbox.value;
+                          }
+                        });
 
-            var appointmentDate = document.getElementById("appointmentdate").value;
-            var doctorId = "{{ doctor.doctor_id }}";
+                        var jsonSlots = JSON.stringify(selectedSlots);
+                        timeslotsTextarea.value = jsonSlots;
 
-            fetch("{% url 'save_time_slots' 0 %}".replace('0', doctorId), {
-              method: "POST",
-              headers: {
-                "X-CSRFToken": getCookie("csrftoken"),
-                "Content-Type": "application/x-www-form-urlencoded",
-              },
-              body: `appointmentdate=${appointmentDate}&timeslots=${encodeURIComponent(jsonSlots)}`,
-            })
-            .then(response => response.json())
-            .then(data => {
-              if (data.message === "Time slots saved successfully") {
-                var timeSlotsTable = document.getElementById("timeSlotsTable");
-                var newRow = timeSlotsTable.insertRow(-1);
-                var dateCell = newRow.insertCell(0);
-                var slotsCell = newRow.insertCell(1);
-                var actionsCell = newRow.insertCell(2);
+                        var appointmentDate = document.getElementById("appointmentdate").value;
+                        var doctorId = "{{ doctor.doctor_id }}";
 
-                dateCell.textContent = appointmentDate;
-                slotsCell.textContent = jsonSlots;
+                        fetch("{% url 'save_time_slots' 0 %}".replace('0', doctorId), {
+                          method: "POST",
+                          headers: {
+                            "X-CSRFToken": getCookie("csrftoken"),
+                            "Content-Type": "application/x-www-form-urlencoded",
+                          },
+                          body: `appointmentdate=${appointmentDate}&timeslots=${encodeURIComponent(jsonSlots)}`,
+                        })
+                        .then(response => response.json())
+                        .then(data => {
+                          if (data.message === "Time slots saved successfully") {
+                            var timeSlotsTable = document.getElementById("timeSlotsTable");
+                            var newRow = timeSlotsTable.insertRow(-1);
+                            var dateCell = newRow.insertCell(0);
+                            var slotsCell = newRow.insertCell(1);
+                            var actionsCell = newRow.insertCell(2);
 
-                var editButton = document.createElement("a");
-                editButton.href = "{% url 'daily_timeslots_edit' doctor.doctor_id 0 %}".replace('0', data.daily_timeslots_id);
-                editButton.className = "btn btn-primary btn-sm";
-                editButton.textContent = "Edit";
+                            dateCell.textContent = appointmentDate;
+                            slotsCell.textContent = jsonSlots;
 
-                actionsCell.appendChild(editButton);
-                actionsCell.appendChild(document.createTextNode(" "));
+                            var editButton = document.createElement("a");
+                            editButton.href = "{% url 'daily_timeslots_edit' doctor.doctor_id 0 %}".replace('0', data.daily_timeslots_id);
+                            editButton.className = "btn btn-primary btn-sm";
+                            editButton.textContent = "Edit";
 
-                var deleteForm = document.createElement("form");
-                deleteForm.method = "post";
-                deleteForm.action = "{% url 'daily_timeslots_delete' doctor.doctor_id 0 %}".replace('0', data.daily_timeslots_id);
+                            actionsCell.appendChild(editButton);
+                            actionsCell.appendChild(document.createTextNode(" "));
 
-                var csrfInput = document.createElement("input");
-                csrfInput.type = "hidden";
-                csrfInput.name = "csrfmiddlewaretoken";
-                csrfInput.value = getCookie("csrftoken");
+                            var deleteForm = document.createElement("form");
+                            deleteForm.method = "post";
+                            deleteForm.action = "{% url 'daily_timeslots_delete' doctor.doctor_id 0 %}".replace('0', data.daily_timeslots_id);
 
-                var deleteButton = document.createElement("button");
-                deleteButton.type = "submit";
-                deleteButton.className = "btn btn-danger btn-sm";
-                deleteButton.textContent = "Delete";
+                            var csrfInput = document.createElement("input");
+                            csrfInput.type = "hidden";
+                            csrfInput.name = "csrfmiddlewaretoken";
+                            csrfInput.value = getCookie("csrftoken");
 
-                deleteForm.appendChild(csrfInput);
-                deleteForm.appendChild(deleteButton);
-                actionsCell.appendChild(deleteForm);
+                            var deleteButton = document.createElement("button");
+                            deleteButton.type = "submit";
+                            deleteButton.className = "btn btn-danger btn-sm";
+                            deleteButton.textContent = "Delete";
 
-                slotIdentifiers.forEach(function(identifier) {
-                  var checkbox = document.getElementById(identifier);
-                  checkbox.checked = false;
-                });
-                timeslotsTextarea.value = "";
+                            deleteForm.appendChild(csrfInput);
+                            deleteForm.appendChild(deleteButton);
+                            actionsCell.appendChild(deleteForm);
 
-              } else {
-                console.error(data.error || "An error occurred while saving time slots.");
-              }
-            })
-            .catch(error => {
-              console.error(error);
-            });
-          });
+                            slotIdentifiers.forEach(function(identifier) {
+                              var checkbox = document.getElementById(identifier);
+                              checkbox.checked = false;
+                            });
+                            timeslotsTextarea.value = "";
 
-          function getCookie(name) {
-            var cookieValue = null;
-            if (document.cookie && document.cookie !== "") {
-              var cookies = document.cookie.split(";");
-              for (var i = 0; i < cookies.length; i++) {
-                var cookie = cookies[i].trim();
-                if (cookie.substring(0, name.length + 1) === name + "=") {
-                  cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
-                  break;
-                }
-              }
-            }
-            return cookieValue;
-          }
-        });
-        </script>
+                          } else {
+                            console.error(data.error || "An error occurred while saving time slots.");
+                          }
+                        })
+                        .catch(error => {
+                          console.error(error);
+                        });
+                      });
 
-      </form>
-
-      <hr>
-      <h2 style="text-align:center;">Time Slots List</h2>
-
-      <p><strong>Doctor:</strong> {{ doctor.doctor_name }}</p>
-
-      <table class="table table-bordered">
-        <thead>
-          <tr>
-            <th>Date</th>
-            <th>Time Slots</th>
-            <th>Actions</th>
-          </tr>
-        </thead>
-        <tbody>
-          {% for time_slot in time_slots %}
-          <tr id="timeslot_row_{{ time_slot.daily_timeslots_id }}">
-            <td>{{ time_slot.appointment_date }}</td>
-<td>{{ time_slot.time_slots }}</td>
-<td>
-    <div class="btn-group" role="group">
-        <a href="#" style="width: 100px;" class="btn btn-primary btn-sm" onclick="editTimeSlots({{ time_slot.daily_timeslots_id }}, '{{ time_slot.appointment_date }}')">Edit</a>&nbsp;
-        <form method="post" action="{% url 'daily_timeslots_delete' doctor.doctor_id time_slot.daily_timeslots_id %}">
-            {% csrf_token %}
-            <button type="submit" style="width: 100px;" class="btn btn-danger btn-sm">Delete</button>
-        </form>
+                      function getCookie(name) {
+                        var cookieValue = null;
+                        if (document.cookie && document.cookie !== "") {
+                          var cookies = document.cookie.split(";");
+                          for (var i = 0; i < cookies.length; i++) {
+                            var cookie = cookies[i].trim();
+                            if (cookie.substring(0, name.length + 1) === name + "=") {
+                              cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+                              break;
+                            }
+                          }
+                        }
+                        return cookieValue;
+                      }
+                    });
+                </script>
+            </form>
+        </div>
     </div>
-</td>
-          </tr>
-          {% empty %}
-          <tr>
-            <td colspan="3">No daily time slots available.</td>
-          </tr>
-          {% endfor %}
-        </tbody>
-      </table>
-      <script>
-        function editTimeSlots(timeslotId, appointmentDate) {
-          var appointmentDateInput = document.getElementById("appointmentdate");
-          if (appointmentDateInput) {
-            // Convert the date to the required "yyyy-MM-dd" format
-            var formattedDate = formatDate(appointmentDate);
-            appointmentDateInput.value = formattedDate;
-            console.log("editTimeSlots function called");
-          } else {
-            console.error("Appointment Date input field not found.");
-          }
-        
-          var selectedSlots = {};
-        
-          // Get the selected time slots from the corresponding row
-          var row = document.getElementById("timeslot_row_" + timeslotId);
-          var timeSlotsCell = row.getElementsByTagName("td")[1];
-          var timeSlots = timeSlotsCell.textContent;
-        
-          // Populate the "Time Update" textarea with the selected time slots
-          var timeslotsTextarea = document.getElementById("timeslots");
-          timeslotsTextarea.value = timeSlots;
-        }
-        
-        function formatDate(inputDate) {
-          // Parse the input date string
-          var parsedDate = new Date(inputDate);
-        
-          // Create a formatted date string in "yyyy-MM-dd" format
-          var formattedDate = parsedDate.getFullYear() + '-' + (parsedDate.getMonth() + 1).toString().padStart(2, '0') + '-' + parsedDate.getDate().toString().padStart(2, '0');
-        
-          return formattedDate;
-        }   
-    </script>
-    
-      <a href="{% url 'daily_timeslots_combined' doctor.doctor_id %}" class="btn btn-primary">Add New Time Slot</a>
+
+    <hr>
+    <h2 style="text-align:center;">Time Slots List</h2>
+
+    <!--<p><strong>Doctor:</strong> {{ doctor.doctor_name }}</p>-->
+    <div class="row">
+        <div class="col-md">
+            <table class="table border border-dark border-2 table-hover table-responsive"
+                   style="border: ; width: 130%; margin: 0 auto;">
+                <thead class="thead-dark">
+                <tr class="text-center">
+                    <th>Date</th>
+                    <th>Time Slots</th>
+                    <th>Actions</th>
+                </tr>
+                </thead>
+                <tbody>
+                {% for time_slot in time_slots %}
+                <tr>
+                    <td>{{ time_slot.appointment_date }}</td>
+                    <td>{{ time_slot.time_slots }}</td>
+
+                    <td>
+                        <div style="display:flex;gap: 10px;" class="btn-group" role="group">
+                            <a href="#" onclick="showTimeSlots('{{ time_slot.time_slots }}')">
+                                <button type="button" class="btn btn-primary">Edit</button>
+                            </a>
+
+                            <form method="post"
+                                  action="{% url 'daily_timeslots_delete' doctor.doctor_id time_slot.daily_timeslots_id %}">
+                                {% csrf_token %}
+                                <button type="submit" style="" class="btn btn-danger">Delete</button>
+                            </form>
+                        </div>
+                    </td>
+                </tr>
+                {% empty %}
+                <tr>
+                    <td colspan="3">No daily time slots available.</td>
+                </tr>
+                {% endfor %}
+                </tbody>
+            </table>
+        </div>
     </div>
-    {% endblock %}
+</div>
+<!--      <a href="{% url 'daily_timeslots_combined' doctor.doctor_id %}" class="btn btn-primary">Add New Time Slot</a>-->
+
+{% endblock %}
+
